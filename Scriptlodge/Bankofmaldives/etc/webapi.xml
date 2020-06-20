@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- Guest place order proxy. for custom cart/checkout/customer data invalidation -->
+    <route url="/V1/bml-guest-carts/:cartId/payment-information" method="POST">
+        <service class="Scriptlodge\Bankofmaldives\Api\GuestPaymentInformationManagementProxyInterface" method="savePaymentInformationAndPlaceOrder"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+    <route url="/V1/bmlIpn" method="POST">
+        <service class="Scriptlodge\Bankofmaldives\Api\IpnInterface" method="savePaymentInformation"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+
+</routes>

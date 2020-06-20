@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Scriptlodge\Bankofmaldives\Api\GuestPaymentInformationManagementProxyInterface"
+                type="Scriptlodge\Bankofmaldives\Model\GuestPaymentInformationManagementProxy" />
+    <preference for="Scriptlodge\Bankofmaldives\Api\IpnInterface"
+                type="Scriptlodge\Bankofmaldives\Model\IpnManagement"/>
+
+
+    <type name="Magento\Framework\Url\SecurityInfo">
+        <arguments>
+            <argument name="secureUrlList" xsi:type="array">
+                <item name="bml" xsi:type="string">/bml/</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Scriptlodge\Bankofmaldives\Gateway\Request\HtmlRedirect\OrderDataBuilder">
+        <arguments>
+            <argument name="config" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </type>
+    <type name="Scriptlodge\Bankofmaldives\Gateway\Command\Form\BuildCommand">
+        <arguments>
+            <argument name="logger" xsi:type="object">BMLLogger</argument>
+        </arguments>
+    </type>
+    <type name="Scriptlodge\Bankofmaldives\Gateway\Command\ResponseCommand">
+        <arguments>
+            <argument name="commandPool" xsi:type="object">BMLCommandPool</argument>
+            <argument name="validator" xsi:type="object">BMLValidator</argument>
+            <argument name="logger" xsi:type="object">BMLLogger</argument>
+            <argument name="config" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="BMLFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="string">bml</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Transparent\Info</argument>
+            <argument name="infoBlockType" xsi:type="string">Scriptlodge\Bankofmaldives\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">BMLValueHandlerPool</argument>
+            <argument  name="validatorPool" xsi:type="object">BMLValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">BMLCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BMLCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">Scriptlodge\Bankofmaldives\Gateway\Command\InitializeCommand</item>
+                <item name="accept_command" xsi:type="string">Scriptlodge\Bankofmaldives\Gateway\Command\Response\AcceptCommand</item>
+                <item name="cancel_command" xsi:type="string">Scriptlodge\Bankofmaldives\Gateway\Command\Response\CancelCommand</item>
+                <item name="capture" xsi:type="string">Scriptlodge\Bankofmaldives\Gateway\Command\CaptureCommand</item>
+                <!--<item name="refund" xsi:type="string">BMLRefundCommand</item>-->
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BMLConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="string">bml</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BMLDefaultValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BMLValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">BMLDefaultValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BMLCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="BMLValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">BMLCountryValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Scriptlodge\Bankofmaldives\Controller\HtmlRedirect\Response">
+        <arguments>
+            <argument name="command" xsi:type="object">Scriptlodge\Bankofmaldives\Gateway\Command\ResponseCommand</argument>
+        </arguments>
+    </type>
+    <virtualType name="BMLValidator" type="Magento\Payment\Gateway\Validator\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="response" xsi:type="string">Scriptlodge\Bankofmaldives\Gateway\Validator\ResponseValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Scriptlodge\Bankofmaldives\Gateway\Validator\ResponseValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </type>
+    <virtualType name="BMLLogger" type="Magento\Payment\Model\Method\Logger">
+        <arguments>
+            <argument name="config" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </virtualType>
+   
+    <type name="Scriptlodge\Bankofmaldives\Gateway\Command\Response\AcceptCommand">
+        <arguments>
+            <argument name="validator" xsi:type="object">Scriptlodge\Bankofmaldives\Gateway\Validator\AcceptValidator</argument>
+            <argument name="handler" xsi:type="object">BMLAcceptHandler</argument>
+        </arguments>
+    </type>
+    <virtualType name="BMLAcceptHandler" type="Magento\Payment\Gateway\Response\HandlerChain">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="waf" xsi:type="string">Scriptlodge\Bankofmaldives\Gateway\Response\PaymentDetailsHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Scriptlodge\Bankofmaldives\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">BMLConfig</argument>
+        </arguments>
+    </type>
+</config>

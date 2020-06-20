@@ -1,0 +1,27 @@
+<?php 
+$formData=$block->getOrderFormData();
+
+/*print_r($formData);
+print_r($formData['transaction_url']);*/
+/*
+
+exit();*/
+?>
+
+<form method="POST" action="<?php echo $formData['transaction_url']; ?>" name="bankofmaldives" id="bankofmaldives">
+    <input type="hidden" name="Version" value="1.1">
+    <input type="hidden" name="MerID" value="<?php echo $formData['MerID']; ?>">
+    <input type="hidden" name="AcqID" value="<?php echo $formData['AcqID']; ?>">
+    <input type="hidden" name="MerRespURL" value="<?php echo $formData['MerRespURL']; ?>">
+    <input type="hidden" name="PurchaseCurrency" value="<?php echo $formData['PurchaseCurrency']; ?>">
+    <input type="hidden" name="PurchaseCurrencyExponent" value="<?php echo $formData['PurchaseCurrencyExponent']; ?>">
+    <input type="hidden" name="OrderID" value="<?php echo $formData['OrderID']; ?>">
+    <input type="hidden" name="SignatureMethod" value="<?php echo $formData['SignatureMethod']; ?>">
+    <input type="hidden" name="PurchaseAmt" value="<?php echo $formData['PurchaseAmt']; ?>">
+    <input type="hidden" name="Signature" value="<?php echo $formData['Signature']; ?>">
+
+    <input type="submit" name="from-submit" id="submitfrm" value="submit" style="display: none;">
+</form>
+<h3>You will be redirected to the payment gateway in a few seconds.</h3>
+
+<script type="text/javascript">document.getElementById("bankofmaldives").submit();</script>
